@@ -1,0 +1,11 @@
+<mssql>
+  <type>jdbc</type>
+  <jdbc>
+    <url>jdbc:sqlserver://192.168.1.6:1566;databaseName=ldjmall0720</url>
+    <user>sa</user>
+    <password>1Qaz2wsx3edc</password>
+    <sql>SELECT  bma_products.* ,bma_productstocks.number ,bma_stores.name AS StoreName ,bma_categories.name AS CateName ,bma_brands.name AS BrandName ,STUFF(( SELECT  ';' + CONVERT(VARCHAR(50), a1.pid) ,',' + a1.showimg  FROM    bma_products a1 WHERE   bma_products.skugid = a1.skugid AND a1.skugid &lt;&gt; 0 AND a1.pid IN (SELECT  MIN(a.pid) FROM    bma_productskus a INNER JOIN bma_attributevalues b ON a.attrvalueid = b.attrvalueid WHERE   b.attrshowtype = 1 GROUP BY a.attrvalueid ,a.skugid ) FOR XML PATH('')), 1, 1, '') extinfostr FROM    bma_products LEFT JOIN bma_productstocks ON bma_products.pid = bma_productstocks.pid LEFT JOIN bma_stores ON bma_products.storeid = bma_stores.storeid LEFT JOIN bma_categories ON bma_products.cateid = bma_categories.cateid LEFT JOIN bma_brands ON bma_products.brandid = bma_brands.brandid WHERE   ( bma_products.pid IN (SELECT    MIN(a.pid) FROM      bma_products a WHERE     shopprice = ( SELECT    MIN(shopprice) FROM   bma_products WHERE     skugid = a.skugid) GROUP BY  skugid ) OR bma_products.skugid = 0)</sql>
+    <index>20150812154154</index>
+    <type>product</type>
+  </jdbc>
+</mssql>
