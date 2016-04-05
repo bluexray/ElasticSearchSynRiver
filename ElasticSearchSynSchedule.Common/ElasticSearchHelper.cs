@@ -21,7 +21,7 @@ namespace ElasticSearchSynSchedule.Common
     {
         private static string IndexOld = string.Empty;
 
-        private static string IndexNew = string.Format("{0:yyyyMMddHHmmss}", DateTime.Now);
+        private static string IndexNew = "";
 
         private static string IndexAlias = ConfigurationManager.AppSettings["IndexAlias"].ToString();
 
@@ -42,26 +42,18 @@ namespace ElasticSearchSynSchedule.Common
             return new ElasticClient(settings);
         }
 
-
-        private static void CreateIndex()
+        public static string SetIndexAlias()
         {
+            IndexNew = string.Format("{0:yyyyMMddHHmmss}", DateTime.Now);
             var clinet = GetClient();
 
-            var q = clinet.CreateIndex(s => s
+
+            var qc = clinet.CreateIndex(s => s
                              .Index(IndexNew)
-                             .Analysis(f => f.Analyzers(qs => qs.Add("default", new LanguageAnalyzer(Language.ik)))));
-
-        }
-
-        public static void SetIndexAlias()
-        {
-            var clinet = GetClient();
-
-
-            CreateIndex();
+                             .Analysis(f => f.Analyzers(qs => qs.Add("default", new LanguageAnalyzer(Language.ik))))
+                             );
 
             var result = clinet.GetAlias(c => c.Alias(IndexAlias));
-
             if (result.Indices.Count > 0)
             {
                 //get default old indexname
@@ -69,7 +61,7 @@ namespace ElasticSearchSynSchedule.Common
             }
 
 
-            if (!ImportDate()) return;
+            if (!ImportDate()) return "";
             clinet.Alias(m => m
                 .Remove(f => f
                     .Index(IndexOld)
@@ -81,8 +73,11 @@ namespace ElasticSearchSynSchedule.Common
                 .Add(q => q
                     .Index(IndexNew)
                     .Alias(IndexAlias)));
-
-            // clinet.DeleteIndex(IndexOld);
+            if (IndexOld != null && IndexOld != "")
+            {
+                clinet.DeleteIndex(IndexOld);
+            }
+            return IndexNew;
         }
 
 
@@ -142,8 +137,10 @@ namespace ElasticSearchSynSchedule.Common
             //{
             //    return true;
             //}
-            
-            return false;
+          //{"_index":"_river","_type":"20160330202029","_id":"_meta","_version":1,"created":true}
+          var rs = Newtonsoft.Json.JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(result);
+          bool a= rs.Value<bool>("created");
+          return a;
         }
     }
 }
