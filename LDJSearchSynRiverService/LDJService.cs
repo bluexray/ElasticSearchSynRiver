@@ -19,7 +19,7 @@ namespace LDJWindowsService
         {
             InitializeComponent();
         }
-
+        System.Threading.Timer timer;
         protected override void OnStart(string[] args)
         {
             
@@ -28,34 +28,30 @@ namespace LDJWindowsService
                 Utils.WriteLogFile("启动服务...");
                 string time = ConfigurationManager.AppSettings["time"].ToString();
                 DateTime lastruntime = DateTime.Parse("1900-01-01");
-                ThreadPool.QueueUserWorkItem((o) =>
+                timer = new Timer((o) =>
                 {
-                    while (true)
+                    if (DateTime.Now - lastruntime > TimeSpan.FromMinutes(int.Parse(time)))
                     {
-                        if (DateTime.Now - lastruntime > TimeSpan.FromMinutes(int.Parse(time)))
+                        lastruntime = DateTime.Now;
+                        try
                         {
-                            lastruntime = DateTime.Now;
-                            try
+                            Utils.WriteLogFile("正在导入数据...");
+                            string rs = ElasticSearchHelper.SetIndexAlias();
+                            if (rs.Length > 0)
                             {
-                                Utils.WriteLogFile("正在导入数据...");
-                                string rs = ElasticSearchHelper.SetIndexAlias();
-                                if (rs.Length > 0)
-                                {
-                                    Utils.WriteLogFile("导入完成，新的索引名称为：" + rs);
-                                }
-                                else
-                                {
-                                    Utils.WriteLogFile("导入失败");
-                                }
+                                Utils.WriteLogFile("导入完成，新的索引名称为：" + rs);
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                Utils.WriteLogFile(ex.Message);
+                                Utils.WriteLogFile("导入失败");
                             }
-                            Thread.Sleep(1000);
+                        }
+                        catch (Exception ex)
+                        {
+                            Utils.WriteLogFile(ex.Message);
                         }
                     }
-                });
+                }, null, 0, 1000);
                 Utils.WriteLogFile("服务已启动");
             }
             catch (Exception ex1)
