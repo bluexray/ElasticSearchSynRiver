@@ -39,11 +39,21 @@ namespace LDJWindowsService
                             string rs = ElasticSearchHelper.SetIndexAlias();
                             if (rs.Length > 0)
                             {
-                                Utils.WriteLogFile("导入完成，新的索引名称为：" + rs);
+                                Utils.WriteLogFile("Mall导入完成，新的索引名称为：" + rs);
                             }
                             else
                             {
-                                Utils.WriteLogFile("导入失败");
+                                Utils.WriteLogFile("Mall导入失败");
+                            }
+
+                            rs = ElasticSearchHelper.SetSuggestIndex();
+                            if (rs.Length > 0)
+                            {
+                                Utils.WriteLogFile("MallSuggest导入完成，新的索引名称为：" + rs);
+                            }
+                            else
+                            {
+                                Utils.WriteLogFile("MallSuggest导入失败");
                             }
                         }
                         catch (Exception ex)
