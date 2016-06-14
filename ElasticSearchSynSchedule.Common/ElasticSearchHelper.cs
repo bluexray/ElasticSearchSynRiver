@@ -171,8 +171,8 @@ namespace ElasticSearchSynSchedule.Common
             Utils.WriteLogFile("ImportBrandSuggestDataBulk开始导入数据(" + IndexNew + ")页大小" + PageSize);
             while (true)
             {
-                SQLinq.Dynamic.DynamicSQLinq sql = new SQLinq.Dynamic.DynamicSQLinq("bma_brands ");
-                sql = sql.Select("brandid,name");
+                SQLinq.Dynamic.DynamicSQLinq sql = new SQLinq.Dynamic.DynamicSQLinq("v_ProductInfo_s ");
+                sql = sql.Select("brandid,BrandName name").GroupBy("brandid,BrandName");
                 sql = sql.Skip(PageSize * (PageNumber - 1)).Take(PageSize).OrderByDescending("brandid");
                 var list = db.Query<dynamic>(sql);
                 if (list.Count == 0)
@@ -234,8 +234,8 @@ namespace ElasticSearchSynSchedule.Common
             Utils.WriteLogFile("ImportStoreSuggestDataBulk开始导入数据(" + IndexNew + ")页大小" + PageSize);
             while (true)
             {
-                SQLinq.Dynamic.DynamicSQLinq sql = new SQLinq.Dynamic.DynamicSQLinq("bma_stores ");
-                sql = sql.Select("storeid,name");
+                SQLinq.Dynamic.DynamicSQLinq sql = new SQLinq.Dynamic.DynamicSQLinq("v_ProductInfo_s ");
+                sql = sql.Select("storeid,StoreName name").GroupBy("storeid,StoreName");
                 sql = sql.Skip(PageSize * (PageNumber - 1)).Take(PageSize).OrderByDescending("storeid");
                 var list = db.Query<dynamic>(sql);
                 if (list.Count == 0)
