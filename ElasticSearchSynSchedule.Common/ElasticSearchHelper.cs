@@ -202,6 +202,8 @@ namespace ElasticSearchSynSchedule.Common
                         List<string> brandkeywords = ((string)brandinfo.keywords).Split(',').ToList();
                         foreach (var key in brandkeywords)
                         {
+                            if (key == "")
+                                continue;
                             output = item.name + key;
                             initials = "";
                             pinyin = ChineseToPinYin.ToPinYin(output, ref initials);
