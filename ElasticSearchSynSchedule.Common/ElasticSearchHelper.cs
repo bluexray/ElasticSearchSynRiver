@@ -183,23 +183,23 @@ namespace ElasticSearchSynSchedule.Common
                 string initials = "";
                 string pinyin = "";
                 string output = "";
+
+                SQLinq.Dynamic.DynamicSQLinq sqlkeywords = new SQLinq.Dynamic.DynamicSQLinq("bma_brands ");
+                sqlkeywords = sqlkeywords.Select("brandid,keywords");
+                var listkeywords = db.Query<dynamic>(sqlkeywords).ToList();
+
                 foreach (var item in list)
                 {
                     output = item.name;
                     initials = "";
                     pinyin = ChineseToPinYin.ToPinYin(output, ref initials);
                     keywordslist.Add(new { keywords = new { input = new List<string>() { output, pinyin, initials }, output = output, payload = new { id = item.brandid.ToString(), type = "brand", keyword = "" }, weight = 20 } });
-
-                    if (item.brandid.ToString() == "21")
+                    
+                    //添加关键词
+                    var brandinfo = listkeywords.FirstOrDefault(a => a.brandid == item.brandid);
+                    if (brandinfo != null && brandinfo.keywords != null)
                     {
-                        List<string> brandkeywords = new List<string>();
-                        brandkeywords.Add("剃须刀");
-                        brandkeywords.Add("咖啡机");
-                        brandkeywords.Add("榨汁机");
-                        brandkeywords.Add("电水壶");
-                        brandkeywords.Add("刮胡刀");
-                        brandkeywords.Add("打蛋器");
-                        brandkeywords.Add("搅拌机");
+                        List<string> brandkeywords = ((string)brandinfo.keywords).Split(',').ToList();
                         foreach (var key in brandkeywords)
                         {
                             output = item.name + key;
